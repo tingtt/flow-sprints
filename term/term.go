@@ -101,7 +101,21 @@ func Get(userId uint64, id uint64) (t Term, notFound bool, err error) {
 	return
 }
 
-func Insert(userId uint64, post Post) (p Term, invalidParentId bool, err error) {
+func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParentId bool, err error) {
+	// Check start/end
+	start, err := time.Parse("2006-1-2", post.Start)
+	if err != nil {
+		return
+	}
+	end, err := time.Parse("2006-1-2", post.End)
+	if err != nil {
+		return
+	}
+	if start.After(end) {
+		startAfterEnd = true
+		return
+	}
+
 	// Check parent id
 	if post.ParentId != nil {
 		_, invalidParentId, err = Get(userId, *post.ParentId)
@@ -151,7 +165,7 @@ func Insert(userId uint64, post Post) (p Term, invalidParentId bool, err error) 
 	return
 }
 
-func Update(userId uint64, id uint64, new Patch) (_ Term, notFound bool, parentNotFound bool, loopParent bool, err error) {
+func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAfterEnd bool, parentNotFound bool, loopParent bool, err error) {
 	// Get old
 	old, notFound, err := Get(userId, id)
 	if err != nil {
@@ -179,6 +193,20 @@ func Update(userId uint64, id uint64, new Patch) (_ Term, notFound bool, parentN
 	}
 	if new.ProjectId == nil {
 		new.ProjectId = old.ProjectId
+	}
+
+	// Check start/end
+	start, err := time.Parse("2006-1-2", *new.Start)
+	if err != nil {
+		return
+	}
+	end, err := time.Parse("2006-1-2", *new.End)
+	if err != nil {
+		return
+	}
+	if start.After(end) {
+		startAfterEnd = true
+		return
 	}
 
 	// Check parent id
@@ -214,7 +242,8 @@ func Update(userId uint64, id uint64, new Patch) (_ Term, notFound bool, parentN
 		return
 	}
 
-	return Term{id, *new.Name, new.Description, *new.Start, *new.End, new.ParentId, new.ProjectId}, notFound, parentNotFound, loopParent, err
+	t = Term{id, *new.Name, new.Description, *new.Start, *new.End, new.ParentId, new.ProjectId}
+	return
 }
 
 func Delete(userId uint64, id uint64) (notFound bool, err error) {

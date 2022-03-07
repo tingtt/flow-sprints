@@ -56,7 +56,7 @@ func patch(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, notFound, invalidParentId, loopParent, err := term.Update(userId, id, *patch)
+	p, notFound, startAfterEnd, parentNotFound, loopParent, err := term.Update(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -67,9 +67,14 @@ func patch(c echo.Context) error {
 		c.Logger().Debug("project not found")
 		return echo.ErrNotFound
 	}
+	if startAfterEnd {
+		// 400: Bad request
+		c.Logger().Debug("`start` must before `end`")
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "`start` must before `end`"}, "	")
+	}
 	if patch.ParentId != nil {
 		// 409: Conflict
-		if invalidParentId {
+		if parentNotFound {
 			c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *patch.ParentId))
 			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("term id: %d does not exists", *patch.ParentId)}, "	")
 		}

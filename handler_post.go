@@ -45,11 +45,16 @@ func post(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, invalidParentId, err := term.Insert(userId, *post)
+	p, startAfterEnd, invalidParentId, err := term.Insert(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+	if startAfterEnd {
+		// 400: Bad request
+		c.Logger().Debug("`start` must before `end`")
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "`start` must before `end`"}, "	")
 	}
 	if invalidParentId && post.ParentId != nil {
 		// 409: Conflict
