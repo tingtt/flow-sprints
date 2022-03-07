@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - .:/go/src/app
+    ports:
+      - $PORT:$PORT
+    env_file:
+      - .env
+      - mysql.env
+      - param.env
+    environment:
+      TZ: UTC
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8
+    volumes:
+      - type: bind
+        source: "./db/init.sql"
+        target: "/docker-entrypoint-initdb.d/init.sql"
+      - type: bind
+        source: "./db/my.cnf"
+        target: "/etc/mysql/conf.d/my.cnf"
+      - ./db/log:/var/log/mysql
+      - mysql_data:/var/lib/mysql
+    ports:
+      - 3306
+    env_file:
+      - mysql.env
+    environment:
+      MYSQL_ROOT_PASSWORD: kJHkFK9m
+      TZ: UTC
+
+volumes:
+  mysql_data:

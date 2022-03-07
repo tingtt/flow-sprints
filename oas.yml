@@ -1,0 +1,278 @@
+openapi: 3.0.0
+
+info:
+  description: |
+    You can find out more about Swagger at
+    [http://swagger.io](http://swagger.io) or on
+    [irc.freenode.net, #swagger](http://swagger.io/irc/).
+  version: "2.0.0"
+  title: "flow API: terms"
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+security:
+  - cookieAuth: []
+
+tags: []
+
+paths:
+  /:
+    post:
+      requestBody:
+        $ref: "#/components/requestBodies/CreateTerm"
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Term"
+        400:
+          description: Invalid request
+        415:
+          description: Unsupported media type
+        422:
+          description: Unprocessable entity
+        500:
+          description: Internal server error
+
+    get:
+      parameters:
+        - $ref: "#/components/parameters/project_id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Term"
+        204:
+          description: No content
+        500:
+          description: Internal server error
+
+  /{date}:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/date"
+        - $ref: "#/components/parameters/range"
+        - $ref: "#/components/parameters/project_id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Term"
+        204:
+          description: No content
+        500:
+          description: Internal server error
+
+  /{id}:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Term"
+        404:
+          description: Not found
+        500:
+          description: Internal server error
+
+    patch:
+      parameters:
+        - $ref: "#/components/parameters/id"
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateTerm"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Term"
+        400:
+          description: Invalid request
+        404:
+          description: Not found
+        415:
+          description: Unsupported media type
+        422:
+          description: Unprocessable entity
+        500:
+          description: Internal server error
+
+    delete:
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        204:
+          description: Deleted
+        404:
+          description: Not found
+        500:
+          description: Internal server error
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: TOKEN
+  schemas:
+    Term:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        estimated_start_date:
+          type: string
+          format: date
+        estimated_end_date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        parent_id:
+          type: integer
+        sub_terms:
+          type: array
+          items:
+          $ref: "#/components/schemas/SubTerm"
+        project_id:
+          type: integer
+
+    SubTerm:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        estimated_start_date:
+          type: string
+          format: date
+        estimated_end_date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        parent_id:
+          type: integer
+        project_id:
+          type: integer
+
+    CreateTermBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        estimated_start_date:
+          type: string
+          format: date
+        estimated_end_date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        parent_id:
+          type: integer
+        project_id:
+          type: integer
+      required:
+        - name
+        - estimated_start_date
+        - estimated_end_date
+
+    UpdateTermBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        estimated_start_date:
+          type: string
+          format: date
+        estimated_end_date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        parent_id:
+          type: integer
+        project_id:
+          type: integer
+
+  requestBodies:
+    CreateTerm:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CreateTermBody"
+
+    UpdateTerm:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UpdateTermBody"
+
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    project_id:
+      name: project_id
+      in: query
+      schema:
+        type: integer
+    date:
+      name: date
+      in: path
+      required: true
+      schema:
+        type: string
+        format: date
+    range:
+      name: range
+      in: query
+      schema:
+        type: integer
