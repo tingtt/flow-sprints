@@ -23,8 +23,8 @@ type Post struct {
 	Description *string `json:"description" validate:"omitempty"`
 	Start       string  `json:"start,omitempty" validate:"required,Y-M-D"`
 	End         string  `json:"end,omitempty" validate:"required,Y-M-D"`
-	ParentId    *uint64 `json:"parent_id" validate:"omitempty"`
-	ProjectId   *uint64 `json:"project_id" validate:"omitempty"`
+	ParentId    *uint64 `json:"parent_id" validate:"omitempty,gte=1"`
+	ProjectId   *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 }
 
 type Patch struct {
@@ -32,8 +32,8 @@ type Patch struct {
 	Description *string `json:"description" validate:"omitempty"`
 	Start       *string `json:"start,omitempty" validate:"omitempty,Y-M-D"`
 	End         *string `json:"end,omitempty" validate:"omitempty,Y-M-D"`
-	ParentId    *uint64 `json:"parent_id" validate:"omitempty"`
-	ProjectId   *uint64 `json:"project_id" validate:"omitempty"`
+	ParentId    *uint64 `json:"parent_id" validate:"omitempty,gte=1"`
+	ProjectId   *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 }
 
 func DateStrValidation(fl validator.FieldLevel) bool {
@@ -241,6 +241,8 @@ func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAf
 		}
 	}
 
+	// TODO: Update child start/end
+
 	// Update row
 	db, err := mysql.Open()
 	if err != nil {
@@ -289,6 +291,8 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 }
 
 func GetList(userId uint64, projectId *uint64) (terms []Term, err error) {
+	// TODO: Embed child terms
+
 	// Generate query
 	queryStr := "SELECT id, name, description, start, end, parent_id, project_id FROM terms WHERE user_id = ?"
 	if projectId != nil {
@@ -368,6 +372,8 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint
 		invalidRange = true
 		return
 	}
+
+	// TODO: Embed child terms
 
 	// Generate query
 	queryStr := ""
