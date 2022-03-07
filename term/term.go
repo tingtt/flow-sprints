@@ -372,9 +372,9 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint
 	// Generate query
 	queryStr := ""
 	if dateRange == nil {
-		queryStr = "SELECT id, name, description, start, end, parent_id, project_id, completed FROM terms WHERE user_id = ? AND ? BETWEEN start AND end"
+		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM terms WHERE user_id = ? AND ? BETWEEN start AND end"
 	} else {
-		queryStr = "SELECT id, name, description, start, end, parent_id, project_id, completed FROM terms WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)"
+		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM terms WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)"
 	}
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
