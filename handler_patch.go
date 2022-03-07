@@ -56,7 +56,7 @@ func patch(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, notFound, startAfterEnd, parentNotFound, loopParent, err := term.Update(userId, id, *patch)
+	p, notFound, startAfterEnd, parentNotFound, loopParent, invalidChildDate, err := term.Update(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -72,16 +72,20 @@ func patch(c echo.Context) error {
 		c.Logger().Debug("`start` must before `end`")
 		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "`start` must before `end`"}, "	")
 	}
-	if patch.ParentId != nil {
+	if parentNotFound && patch.ParentId != nil {
 		// 409: Conflict
-		if parentNotFound {
-			c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *patch.ParentId))
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("term id: %d does not exists", *patch.ParentId)}, "	")
-		}
-		if loopParent {
-			c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *patch.ParentId))
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": "cannot set own child"}, "	")
-		}
+		c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *patch.ParentId))
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("term id: %d does not exists", *patch.ParentId)}, "	")
+	}
+	if loopParent && patch.ParentId != nil {
+		// 409: Conflict
+		c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *patch.ParentId))
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "cannot set own child"}, "	")
+	}
+	if invalidChildDate {
+		// 409: Conflict
+		c.Logger().Debug("child must between parent")
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "child must between parent"}, "	")
 	}
 
 	// 200: Success

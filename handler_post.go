@@ -45,7 +45,7 @@ func post(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, startAfterEnd, invalidParentId, err := term.Insert(userId, *post)
+	p, startAfterEnd, invalidParentId, invalidChildDate, err := term.Insert(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -60,6 +60,11 @@ func post(c echo.Context) error {
 		// 409: Conflict
 		c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *post.ParentId))
 		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("term id: %d does not exists", *post.ParentId)}, "	")
+	}
+	if invalidChildDate {
+		// 409: Conflict
+		c.Logger().Debug("child must between parent")
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "child must between parent"}, "	")
 	}
 
 	// 200: Success

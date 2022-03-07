@@ -101,7 +101,7 @@ func Get(userId uint64, id uint64) (t Term, notFound bool, err error) {
 	return
 }
 
-func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParentId bool, err error) {
+func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParentId bool, invalidChildDate bool, err error) {
 	// Check start/end
 	start, err := time.Parse("2006-1-2", post.Start)
 	if err != nil {
@@ -116,14 +116,22 @@ func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParent
 		return
 	}
 
-	// Check parent id
+	// Check parent id/start/end
 	if post.ParentId != nil {
-		_, invalidParentId, err = Get(userId, *post.ParentId)
+		var parent Term
+		parent, invalidParentId, err = Get(userId, *post.ParentId)
 		if err != nil {
 			return
 		}
 		if invalidParentId {
 			invalidParentId = true
+			return
+		}
+		pStart, _ := time.Parse("2006-1-2", parent.Start)
+		pEnd, _ := time.Parse("2006-1-2", parent.End)
+		if start.Before(pStart) || end.After(pEnd) {
+			// child start/end not between parent start/end
+			invalidChildDate = true
 			return
 		}
 	}
@@ -165,7 +173,7 @@ func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParent
 	return
 }
 
-func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAfterEnd bool, parentNotFound bool, loopParent bool, err error) {
+func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAfterEnd bool, parentNotFound bool, loopParent bool, invalidChildDate bool, err error) {
 	// Get old
 	old, notFound, err := Get(userId, id)
 	if err != nil {
@@ -209,7 +217,7 @@ func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAf
 		return
 	}
 
-	// Check parent id
+	// Check parent id/start/end
 	if new.ParentId != nil {
 		var parent Term
 		parent, parentNotFound, err = Get(userId, *new.ParentId)
@@ -222,6 +230,13 @@ func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAf
 		}
 		if parent.Id == id {
 			loopParent = true
+			return
+		}
+		pStart, _ := time.Parse("2006-1-2", parent.Start)
+		pEnd, _ := time.Parse("2006-1-2", parent.End)
+		if start.Before(pStart) || end.After(pEnd) {
+			// child start/end not between parent start/end
+			invalidChildDate = true
 			return
 		}
 	}
