@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flow-terms/jwt"
-	"flow-terms/term"
+	"flow-sprints/jwt"
+	"flow-sprints/sprint"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -38,7 +38,7 @@ func patch(c echo.Context) error {
 	}
 
 	// Bind request body
-	patch := new(term.Patch)
+	patch := new(sprint.Patch)
 	if err = c.Bind(patch); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -52,11 +52,11 @@ func patch(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check term id
+	// TODO: Check parent id
 
 	// TODO: Check project id
 
-	p, notFound, startAfterEnd, parentNotFound, loopParent, invalidChildDate, err := term.Update(userId, id, *patch)
+	p, notFound, startAfterEnd, parentNotFound, loopParent, invalidChildDate, err := sprint.Update(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -74,12 +74,12 @@ func patch(c echo.Context) error {
 	}
 	if parentNotFound && patch.ParentId != nil {
 		// 409: Conflict
-		c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *patch.ParentId))
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("term id: %d does not exists", *patch.ParentId)}, "	")
+		c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exists", *patch.ParentId))
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("sprint id: %d does not exists", *patch.ParentId)}, "	")
 	}
 	if loopParent && patch.ParentId != nil {
 		// 409: Conflict
-		c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *patch.ParentId))
+		c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exists", *patch.ParentId))
 		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "cannot set own child"}, "	")
 	}
 	if invalidChildDate {

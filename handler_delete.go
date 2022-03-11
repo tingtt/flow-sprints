@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"flow-terms/jwt"
-	"flow-terms/term"
+	"flow-sprints/jwt"
+	"flow-sprints/sprint"
 	"net/http"
 	"strconv"
 
@@ -30,7 +30,7 @@ func delete(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 
-	notFound, err := term.Delete(userId, id)
+	notFound, err := sprint.Delete(userId, id)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -38,7 +38,7 @@ func delete(c echo.Context) error {
 	}
 	if notFound {
 		// 404: Not found
-		c.Logger().Debug(errors.New("term not found"))
+		c.Logger().Debug(errors.New("sprint not found"))
 		return echo.ErrNotFound
 	}
 

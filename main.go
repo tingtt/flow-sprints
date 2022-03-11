@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"flow-terms/jwt"
-	"flow-terms/mysql"
-	"flow-terms/term"
+	"flow-sprints/jwt"
+	"flow-sprints/mysql"
+	"flow-sprints/sprint"
 	"fmt"
 	"os"
 	"strconv"
@@ -39,8 +39,8 @@ var (
 	gzipLevel   = flag.Int("gzip-level", getIntEnv("GZIP_LEVEL", 6), "Gzip compression level")
 	mysqlHost   = flag.String("mysql-host", getEnv("MYSQL_HOST", "db"), "MySQL host")
 	mysqlPort   = flag.Int("mysql-port", getIntEnv("MYSQL_PORT", 3306), "MySQL port")
-	mysqlDB     = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-terms"), "MySQL database")
-	mysqlUser   = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-terms"), "MySQL user")
+	mysqlDB     = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-sprints"), "MySQL database")
+	mysqlUser   = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-sprints"), "MySQL user")
 	mysqlPasswd = flag.String("mysql-password", getEnv("MYSQL_PASSWORD", ""), "MySQL password")
 	jwtIssuer   = flag.String("jwt-issuer", getEnv("JWT_ISSUER", "flow-users"), "JWT issuer")
 	jwtSecret   = flag.String("jwt-secret", getEnv("JWT_SECRET", ""), "JWT secret")
@@ -52,7 +52,7 @@ type CustomValidator struct {
 
 func (cv *CustomValidator) Validate(i interface{}) error {
 	// Register custum validations
-	cv.validator.RegisterValidation("Y-M-D", term.DateStrValidation)
+	cv.validator.RegisterValidation("Y-M-D", sprint.DateStrValidation)
 
 	if err := cv.validator.Struct(i); err != nil {
 		// Optionally, you could return the error to give each route more control over the status code

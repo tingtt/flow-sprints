@@ -6,7 +6,7 @@ info:
     [http://swagger.io](http://swagger.io) or on
     [irc.freenode.net, #swagger](http://swagger.io/irc/).
   version: "2.0.0"
-  title: "flow API: terms"
+  title: "flow API: sprints"
   license:
     name: Apache 2.0
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -20,14 +20,14 @@ paths:
   /:
     post:
       requestBody:
-        $ref: "#/components/requestBodies/CreateTerm"
+        $ref: "#/components/requestBodies/CreateSprint"
       responses:
         201:
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Term"
+                $ref: "#/components/schemas/Sprint"
         400:
           description: Invalid request
         415:
@@ -48,7 +48,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Term"
+                  $ref: "#/components/schemas/Sprint"
         204:
           description: No content
         500:
@@ -68,7 +68,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Term"
+                  $ref: "#/components/schemas/Sprint"
         204:
           description: No content
         500:
@@ -84,7 +84,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Term"
+                $ref: "#/components/schemas/Sprint"
         404:
           description: Not found
         500:
@@ -94,14 +94,14 @@ paths:
       parameters:
         - $ref: "#/components/parameters/id"
       requestBody:
-        $ref: "#/components/requestBodies/UpdateTerm"
+        $ref: "#/components/requestBodies/UpdateSprint"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Term"
+                $ref: "#/components/schemas/Sprint"
         400:
           description: Invalid request
         404:
@@ -131,7 +131,7 @@ components:
       in: cookie
       name: TOKEN
   schemas:
-    Term:
+    Sprint:
       type: object
       properties:
         id:
@@ -154,14 +154,14 @@ components:
           format: date
         parent_id:
           type: integer
-        sub_terms:
+        sub_sprints:
           type: array
           items:
-          $ref: "#/components/schemas/SubTerm"
+          $ref: "#/components/schemas/SubSprint"
         project_id:
           type: integer
 
-    SubTerm:
+    SubSprint:
       type: object
       properties:
         id:
@@ -187,7 +187,7 @@ components:
         project_id:
           type: integer
 
-    CreateTermBody:
+    CreateSprintBody:
       type: object
       properties:
         name:
@@ -215,7 +215,7 @@ components:
         - estimated_start_date
         - estimated_end_date
 
-    UpdateTermBody:
+    UpdateSprintBody:
       type: object
       properties:
         name:
@@ -240,17 +240,17 @@ components:
           type: integer
 
   requestBodies:
-    CreateTerm:
+    CreateSprint:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/CreateTermBody"
+            $ref: "#/components/schemas/CreateSprintBody"
 
-    UpdateTerm:
+    UpdateSprint:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/UpdateTermBody"
+            $ref: "#/components/schemas/UpdateSprintBody"
 
   parameters:
     id:

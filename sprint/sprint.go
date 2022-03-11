@@ -1,14 +1,14 @@
-package term
+package sprint
 
 import (
 	"database/sql"
-	"flow-terms/mysql"
+	"flow-sprints/mysql"
 	"time"
 
 	"github.com/go-playground/validator"
 )
 
-type Term struct {
+type Sprint struct {
 	Id          uint64  `json:"id"`
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
@@ -42,22 +42,22 @@ func DateStrValidation(fl validator.FieldLevel) bool {
 	return err == nil
 }
 
-func Get(userId uint64, id uint64) (t Term, notFound bool, err error) {
+func Get(userId uint64, id uint64) (t Sprint, notFound bool, err error) {
 	db, err := mysql.Open()
 	if err != nil {
-		return Term{}, false, err
+		return Sprint{}, false, err
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT name, description, start, end, parent_id, project_id FROM terms WHERE user_id = ? AND id = ?")
+	stmtOut, err := db.Prepare("SELECT name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ? AND id = ?")
 	if err != nil {
-		return Term{}, false, err
+		return Sprint{}, false, err
 	}
 	defer stmtOut.Close()
 
 	rows, err := stmtOut.Query(userId, id)
 	if err != nil {
-		return Term{}, false, err
+		return Sprint{}, false, err
 	}
 
 	// TODO: uint64に対応
@@ -71,11 +71,11 @@ func Get(userId uint64, id uint64) (t Term, notFound bool, err error) {
 	)
 	if !rows.Next() {
 		// Not found
-		return Term{}, true, nil
+		return Sprint{}, true, nil
 	}
 	err = rows.Scan(&name, &description, &start, &end, &parentId, &projectId)
 	if err != nil {
-		return Term{}, false, err
+		return Sprint{}, false, err
 	}
 
 	t.Id = id
@@ -90,8 +90,8 @@ func Get(userId uint64, id uint64) (t Term, notFound bool, err error) {
 		t.End = end.String
 	}
 	if parentId.Valid {
-		termIdTmp := uint64(parentId.Int64)
-		t.ParentId = &termIdTmp
+		sprintIdTmp := uint64(parentId.Int64)
+		t.ParentId = &sprintIdTmp
 	}
 	if projectId.Valid {
 		projectIdTmp := uint64(projectId.Int64)
@@ -101,7 +101,7 @@ func Get(userId uint64, id uint64) (t Term, notFound bool, err error) {
 	return
 }
 
-func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParentId bool, invalidChildDate bool, err error) {
+func Insert(userId uint64, post Post) (p Sprint, startAfterEnd bool, invalidParentId bool, invalidChildDate bool, err error) {
 	// Check start/end
 	start, err := time.Parse("2006-1-2", post.Start)
 	if err != nil {
@@ -117,8 +117,9 @@ func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParent
 	}
 
 	// Check parent id/start/end
+	//TODO: Check parent has no parent
 	if post.ParentId != nil {
-		var parent Term
+		var parent Sprint
 		parent, invalidParentId, err = Get(userId, *post.ParentId)
 		if err != nil {
 			return
@@ -142,7 +143,7 @@ func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParent
 		return
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("INSERT INTO terms (user_id, name, description, start, end, parent_id, project_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+	stmtIns, err := db.Prepare("INSERT INTO sprints (user_id, name, description, start, end, parent_id, project_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return
 	}
@@ -173,7 +174,7 @@ func Insert(userId uint64, post Post) (p Term, startAfterEnd bool, invalidParent
 	return
 }
 
-func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAfterEnd bool, parentNotFound bool, loopParent bool, invalidChildDate bool, err error) {
+func Update(userId uint64, id uint64, new Patch) (t Sprint, notFound bool, startAfterEnd bool, parentNotFound bool, loopParent bool, invalidChildDate bool, err error) {
 	// Get old
 	old, notFound, err := Get(userId, id)
 	if err != nil {
@@ -219,7 +220,7 @@ func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAf
 
 	// Check parent id/start/end
 	if new.ParentId != nil {
-		var parent Term
+		var parent Sprint
 		parent, parentNotFound, err = Get(userId, *new.ParentId)
 		if err != nil {
 			return
@@ -249,7 +250,7 @@ func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAf
 		return
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("UPDATE terms SET name = ?, description = ?, start = ?, end = ?, parent_id = ?, project_id = ? WHERE user_id = ? AND id = ?")
+	stmtIns, err := db.Prepare("UPDATE sprints SET name = ?, description = ?, start = ?, end = ?, parent_id = ?, project_id = ? WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return
 	}
@@ -259,7 +260,7 @@ func Update(userId uint64, id uint64, new Patch) (t Term, notFound bool, startAf
 		return
 	}
 
-	t = Term{id, *new.Name, new.Description, *new.Start, *new.End, new.ParentId, new.ProjectId}
+	t = Sprint{id, *new.Name, new.Description, *new.Start, *new.End, new.ParentId, new.ProjectId}
 	return
 }
 
@@ -269,7 +270,7 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 		return false, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("DELETE FROM terms WHERE user_id = ? AND id = ?")
+	stmtIns, err := db.Prepare("DELETE FROM sprints WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return false, err
 	}
@@ -290,11 +291,11 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 	return false, nil
 }
 
-func GetList(userId uint64, projectId *uint64) (terms []Term, err error) {
-	// TODO: Embed child terms
+func GetList(userId uint64, projectId *uint64) (sprints []Sprint, err error) {
+	// TODO: Embed child sprints
 
 	// Generate query
-	queryStr := "SELECT id, name, description, start, end, parent_id, project_id FROM terms WHERE user_id = ?"
+	queryStr := "SELECT id, name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ?"
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
 	}
@@ -338,26 +339,26 @@ func GetList(userId uint64, projectId *uint64) (terms []Term, err error) {
 			return
 		}
 
-		t := Term{Id: id, Name: name, Start: start, End: end}
+		t := Sprint{Id: id, Name: name, Start: start, End: end}
 		if description.Valid {
 			t.Description = &description.String
 		}
 		if parentId.Valid {
-			termIdTmp := uint64(parentId.Int64)
-			t.ParentId = &termIdTmp
+			sprintIdTmp := uint64(parentId.Int64)
+			t.ParentId = &sprintIdTmp
 		}
 		if projectId.Valid {
 			projectIdTmp := uint64(projectId.Int64)
 			t.ProjectId = &projectIdTmp
 		}
 
-		terms = append(terms, t)
+		sprints = append(sprints, t)
 	}
 
 	return
 }
 
-func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint64) (terms []Term, invalidDateStr bool, invalidRange bool, err error) {
+func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint64) (sprints []Sprint, invalidDateStr bool, invalidRange bool, err error) {
 	// Validate params
 	date, err := time.Parse("20060102", dateStr)
 	if err != nil {
@@ -373,14 +374,14 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint
 		return
 	}
 
-	// TODO: Embed child terms
+	// TODO: Embed child sprints
 
 	// Generate query
 	queryStr := ""
 	if dateRange == nil {
-		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM terms WHERE user_id = ? AND ? BETWEEN start AND end"
+		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ? AND ? BETWEEN start AND end"
 	} else {
-		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM terms WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)"
+		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)"
 	}
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
@@ -434,20 +435,20 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint
 			return
 		}
 
-		t := Term{Id: id, Name: name, Start: start, End: end}
+		t := Sprint{Id: id, Name: name, Start: start, End: end}
 		if description.Valid {
 			t.Description = &description.String
 		}
 		if parentId.Valid {
-			termIdTmp := uint64(parentId.Int64)
-			t.ParentId = &termIdTmp
+			sprintIdTmp := uint64(parentId.Int64)
+			t.ParentId = &sprintIdTmp
 		}
 		if projectId.Valid {
 			projectIdTmp := uint64(projectId.Int64)
 			t.ProjectId = &projectIdTmp
 		}
 
-		terms = append(terms, t)
+		sprints = append(sprints, t)
 	}
 
 	return

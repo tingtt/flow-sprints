@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flow-terms/jwt"
-	"flow-terms/term"
+	"flow-sprints/jwt"
+	"flow-sprints/sprint"
 	"net/http"
 	"time"
 
@@ -52,16 +52,16 @@ func getDate(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// Get terms
-	terms, _, _, err := term.GetListDate(userId, dateStr, q.Range, q.ProjectId)
+	// Get sprints
+	sprints, _, _, err := sprint.GetListDate(userId, dateStr, q.Range, q.ProjectId)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 
-	if terms == nil {
+	if sprints == nil {
 		return c.JSONPretty(http.StatusOK, []interface{}{}, "	")
 	}
-	return c.JSONPretty(http.StatusOK, terms, "	")
+	return c.JSONPretty(http.StatusOK, sprints, "	")
 }

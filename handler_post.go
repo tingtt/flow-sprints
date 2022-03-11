@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flow-terms/jwt"
-	"flow-terms/term"
+	"flow-sprints/jwt"
+	"flow-sprints/sprint"
 	"fmt"
 	"net/http"
 
@@ -27,7 +27,7 @@ func post(c echo.Context) error {
 	}
 
 	// Bind request body
-	post := new(term.Post)
+	post := new(sprint.Post)
 	if err = c.Bind(post); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -41,11 +41,11 @@ func post(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check term id
+	// TODO: Check parent id
 
 	// TODO: Check project id
 
-	p, startAfterEnd, invalidParentId, invalidChildDate, err := term.Insert(userId, *post)
+	p, startAfterEnd, invalidParentId, invalidChildDate, err := sprint.Insert(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -58,8 +58,8 @@ func post(c echo.Context) error {
 	}
 	if invalidParentId && post.ParentId != nil {
 		// 409: Conflict
-		c.Logger().Debug(fmt.Sprintf("term id: %d does not exists", *post.ParentId))
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("term id: %d does not exists", *post.ParentId)}, "	")
+		c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exists", *post.ParentId))
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("sprint id: %d does not exists", *post.ParentId)}, "	")
 	}
 	if invalidChildDate {
 		// 409: Conflict

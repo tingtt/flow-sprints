@@ -1,4 +1,4 @@
-module flow-terms
+module flow-sprints
 
 go 1.17
 
