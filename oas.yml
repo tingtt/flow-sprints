@@ -39,26 +39,8 @@ paths:
 
     get:
       parameters:
-        - $ref: "#/components/parameters/project_id"
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Sprint"
-        204:
-          description: No content
-        500:
-          description: Internal server error
-
-  /{date}:
-    get:
-      parameters:
-        - $ref: "#/components/parameters/date"
-        - $ref: "#/components/parameters/range"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/end"
         - $ref: "#/components/parameters/project_id"
       responses:
         200:
@@ -276,3 +258,15 @@ components:
       in: query
       schema:
         type: integer
+    start:
+      name: start
+      in: query
+      schema:
+        type: string
+        format: date-time
+    end:
+      name: end
+      in: query
+      schema:
+        type: string
+        format: date-time

@@ -9,10 +9,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-type GetQueryParam struct {
-	ProjectId *uint64 `query:"project_id" validate:"omitempty"`
-}
-
 func get(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
@@ -23,7 +19,7 @@ func get(c echo.Context) error {
 	}
 
 	// Bind query
-	q := new(GetQueryParam)
+	q := new(sprint.GetListQuery)
 	if err = c.Bind(q); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -38,13 +34,14 @@ func get(c echo.Context) error {
 	}
 
 	// Get sprints
-	sprints, err := sprint.GetList(userId, q.ProjectId)
+	sprints, err := sprint.GetList(userId, *q)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 
+	// 200: Success
 	if sprints == nil {
 		return c.JSONPretty(http.StatusOK, []interface{}{}, "	")
 	}
