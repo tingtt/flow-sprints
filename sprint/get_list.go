@@ -1,7 +1,6 @@
 package sprint
 
 import (
-	"database/sql"
 	"flow-sprints/mysql"
 	"time"
 )
@@ -11,8 +10,10 @@ func GetList(userId uint64, projectId *uint64) (sprints []Sprint, err error) {
 
 	// Generate query
 	queryStr := "SELECT id, name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ?"
+	queryParams := []interface{}{userId}
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
+		queryParams = append(queryParams, projectId)
 	}
 	queryStr += " ORDER BY start, end"
 
@@ -28,46 +29,18 @@ func GetList(userId uint64, projectId *uint64) (sprints []Sprint, err error) {
 	}
 	defer stmtOut.Close()
 
-	var rows *sql.Rows
-	if projectId == nil {
-		rows, err = stmtOut.Query(userId)
-	} else {
-		rows, err = stmtOut.Query(userId, *projectId)
-	}
+	rows, err := stmtOut.Query(queryParams...)
 	if err != nil {
 		return
 	}
 
 	for rows.Next() {
-		// TODO: uint64に対応
-		var (
-			id          uint64
-			name        string
-			description sql.NullString
-			start       string
-			end         string
-			parentId    sql.NullInt64
-			projectId   sql.NullInt64
-		)
-		err = rows.Scan(&id, &name, &description, &start, &end, &parentId, &projectId)
+		s := Sprint{}
+		err = rows.Scan(&s.Id, &s.Name, &s.Description, &s.Start, &s.End, &s.ParentId, &s.ProjectId)
 		if err != nil {
 			return
 		}
-
-		t := Sprint{Id: id, Name: name, Start: start, End: end}
-		if description.Valid {
-			t.Description = &description.String
-		}
-		if parentId.Valid {
-			sprintIdTmp := uint64(parentId.Int64)
-			t.ParentId = &sprintIdTmp
-		}
-		if projectId.Valid {
-			projectIdTmp := uint64(projectId.Int64)
-			t.ProjectId = &projectIdTmp
-		}
-
-		sprints = append(sprints, t)
+		sprints = append(sprints, s)
 	}
 
 	return
@@ -93,13 +66,18 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint
 
 	// Generate query
 	queryStr := ""
+	queryParams := []interface{}{userId}
 	if dateRange == nil {
 		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ? AND ? BETWEEN start AND end"
+		queryParams = append(queryParams, dateStr)
 	} else {
 		queryStr = "SELECT id, name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)"
+		dateEndStr := date.AddDate(0, 0, int(*dateRange)-1).Format("2006-1-2")
+		queryParams = append(queryParams, dateStr, dateEndStr, dateStr, dateEndStr)
 	}
 	if projectId != nil {
 		queryStr += " AND project_id = ?"
+		queryParams = append(queryParams, projectId)
 	}
 	queryStr += " ORDER BY start, end"
 
@@ -115,55 +93,18 @@ func GetListDate(userId uint64, dateStr string, dateRange *uint, projectId *uint
 	}
 	defer stmtOut.Close()
 
-	var rows *sql.Rows
-	if dateRange == nil {
-		if projectId == nil {
-			rows, err = stmtOut.Query(userId, dateStr)
-		} else {
-			rows, err = stmtOut.Query(userId, dateStr, *projectId)
-		}
-	} else {
-		dateEnd := date.AddDate(0, 0, int(*dateRange)-1)
-		if projectId == nil {
-			rows, err = stmtOut.Query(userId, dateStr, dateEnd.Format("2006-1-2"), dateStr, dateEnd.Format("2006-1-2"))
-		} else {
-			rows, err = stmtOut.Query(userId, dateStr, dateEnd.Format("2006-1-2"), dateStr, dateEnd.Format("2006-1-2"), *projectId)
-		}
-	}
+	rows, err := stmtOut.Query(queryParams...)
 	if err != nil {
 		return
 	}
 
 	for rows.Next() {
-		// TODO: uint64に対応
-		var (
-			id          uint64
-			name        string
-			description sql.NullString
-			start       string
-			end         string
-			parentId    sql.NullInt64
-			projectId   sql.NullInt64
-		)
-		err = rows.Scan(&id, &name, &description, &start, &end, &parentId, &projectId)
+		s := Sprint{}
+		err = rows.Scan(&s.Id, &s.Name, &s.Description, &s.Start, &s.End, &s.ParentId, &s.ProjectId)
 		if err != nil {
 			return
 		}
-
-		t := Sprint{Id: id, Name: name, Start: start, End: end}
-		if description.Valid {
-			t.Description = &description.String
-		}
-		if parentId.Valid {
-			sprintIdTmp := uint64(parentId.Int64)
-			t.ParentId = &sprintIdTmp
-		}
-		if projectId.Valid {
-			projectIdTmp := uint64(projectId.Int64)
-			t.ProjectId = &projectIdTmp
-		}
-
-		sprints = append(sprints, t)
+		sprints = append(sprints, s)
 	}
 
 	return
