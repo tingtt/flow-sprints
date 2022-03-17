@@ -28,9 +28,9 @@ func get(c echo.Context) error {
 
 	// Validate query
 	if err = c.Validate(q); err != nil {
-		// 422: Unprocessable entity
+		// 400: Bad request
 		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
 	}
 
 	// Get sprints
