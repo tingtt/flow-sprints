@@ -3,7 +3,6 @@ package main
 import (
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
-	"fmt"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
@@ -12,8 +11,7 @@ import (
 
 func post(c echo.Context) error {
 	// Check `Content-Type`
-	if c.Request().Header.Get("Content-Type") != "application/json" &&
-		c.Request().Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
+	if c.Request().Header.Get("Content-Type") != "application/json" {
 		// 415: Invalid `Content-Type`
 		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": "unsupported media type"}, "	")
 	}
@@ -41,11 +39,9 @@ func post(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check parent id
-
 	// TODO: Check project id
 
-	p, startAfterEnd, invalidParentId, invalidChildDate, err := sprint.Post(userId, *post)
+	p, startAfterEnd, err := sprint.Post(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -55,16 +51,6 @@ func post(c echo.Context) error {
 		// 400: Bad request
 		c.Logger().Debug("`start` must before `end`")
 		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "`start` must before `end`"}, "	")
-	}
-	if invalidParentId && post.ParentId != nil {
-		// 409: Conflict
-		c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exists", *post.ParentId))
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("sprint id: %d does not exists", *post.ParentId)}, "	")
-	}
-	if invalidChildDate {
-		// 409: Conflict
-		c.Logger().Debug("child must between parent")
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "child must between parent"}, "	")
 	}
 
 	// 200: Success

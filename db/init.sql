@@ -22,10 +22,8 @@ CREATE TABLE `sprints` (
   `description` varchar(255) DEFAULT NULL,
   `start` date NOT NULL,
   `end` date NOT NULL,
-  `parent_id` bigint UNSIGNED DEFAULT NULL,
   `project_id` bigint UNSIGNED DEFAULT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  FOREIGN KEY (`parent_id`) REFERENCES `sprints` (`id`) ON DELETE CASCADE
+  PRIMARY KEY (id)
 );

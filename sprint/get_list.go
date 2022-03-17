@@ -12,7 +12,7 @@ type GetListQuery struct {
 
 func GetList(userId uint64, q GetListQuery) (sprints []Sprint, err error) {
 	// Generate query
-	queryStr := "SELECT id, name, description, start, end, parent_id, project_id FROM sprints WHERE user_id = ?"
+	queryStr := "SELECT id, name, description, start, end, project_id FROM sprints WHERE user_id = ?"
 	queryParams := []interface{}{userId}
 	if q.Start != nil {
 		queryStr += " AND end >= ?"
@@ -47,7 +47,7 @@ func GetList(userId uint64, q GetListQuery) (sprints []Sprint, err error) {
 
 	for rows.Next() {
 		s := Sprint{}
-		err = rows.Scan(&s.Id, &s.Name, &s.Description, &s.Start, &s.End, &s.ParentId, &s.ProjectId)
+		err = rows.Scan(&s.Id, &s.Name, &s.Description, &s.Start, &s.End, &s.ProjectId)
 		if err != nil {
 			return
 		}

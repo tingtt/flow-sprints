@@ -3,7 +3,6 @@ package main
 import (
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,8 +12,7 @@ import (
 
 func patch(c echo.Context) error {
 	// Check `Content-Type`
-	if c.Request().Header.Get("Content-Type") != "application/json" &&
-		c.Request().Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
+	if c.Request().Header.Get("Content-Type") != "application/json" {
 		// 415: Invalid `Content-Type`
 		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": "unsupported media type"}, "	")
 	}
@@ -52,11 +50,9 @@ func patch(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check parent id
-
 	// TODO: Check project id
 
-	p, notFound, startAfterEnd, parentNotFound, loopParent, invalidChildDate, err := sprint.Patch(userId, id, *patch)
+	p, notFound, startAfterEnd, err := sprint.Patch(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -71,21 +67,6 @@ func patch(c echo.Context) error {
 		// 400: Bad request
 		c.Logger().Debug("`start` must before `end`")
 		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "`start` must before `end`"}, "	")
-	}
-	if parentNotFound && patch.ParentId != nil {
-		// 409: Conflict
-		c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exists", *patch.ParentId))
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("sprint id: %d does not exists", *patch.ParentId)}, "	")
-	}
-	if loopParent && patch.ParentId != nil {
-		// 409: Conflict
-		c.Logger().Debug(fmt.Sprintf("sprint id: %d does not exists", *patch.ParentId))
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "cannot set own child"}, "	")
-	}
-	if invalidChildDate {
-		// 409: Conflict
-		c.Logger().Debug("child must between parent")
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "child must between parent"}, "	")
 	}
 
 	// 200: Success

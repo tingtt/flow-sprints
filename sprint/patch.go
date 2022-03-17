@@ -11,11 +11,10 @@ type PatchBody struct {
 	Description *string `json:"description" validate:"omitempty"`
 	Start       *string `json:"start,omitempty" validate:"omitempty,Y-M-D"`
 	End         *string `json:"end,omitempty" validate:"omitempty,Y-M-D"`
-	ParentId    *uint64 `json:"parent_id" validate:"omitempty,gte=1"`
 	ProjectId   *uint64 `json:"project_id" validate:"omitempty,gte=1"`
 }
 
-func Patch(userId uint64, id uint64, new PatchBody) (s Sprint, notFound bool, startAfterEnd bool, parentNotFound bool, loopParent bool, invalidChildDate bool, err error) {
+func Patch(userId uint64, id uint64, new PatchBody) (s Sprint, notFound bool, startAfterEnd bool, err error) {
 	// Get old
 	s, notFound, err = Get(userId, id)
 	if err != nil {
@@ -48,11 +47,6 @@ func Patch(userId uint64, id uint64, new PatchBody) (s Sprint, notFound bool, st
 		queryParams = append(queryParams, new.End)
 		s.End = *new.End
 	}
-	if new.ParentId != nil {
-		queryStr += " parent_id = ?,"
-		queryParams = append(queryParams, new.ParentId)
-		s.ParentId = new.ParentId
-	}
 	if new.ProjectId != nil {
 		queryStr += " project_id = ?,"
 		queryParams = append(queryParams, new.ProjectId)
@@ -75,32 +69,6 @@ func Patch(userId uint64, id uint64, new PatchBody) (s Sprint, notFound bool, st
 		startAfterEnd = true
 		return
 	}
-
-	// Check parent id/start/end
-	if new.ParentId != nil {
-		var parent Sprint
-		parent, parentNotFound, err = Get(userId, *new.ParentId)
-		if err != nil {
-			return
-		}
-		if parentNotFound {
-			parentNotFound = true
-			return
-		}
-		if parent.Id == id {
-			loopParent = true
-			return
-		}
-		pStart, _ := time.Parse("2006-1-2", parent.Start)
-		pEnd, _ := time.Parse("2006-1-2", parent.End)
-		if start.Before(pStart) || end.After(pEnd) {
-			// child start/end not between parent start/end
-			invalidChildDate = true
-			return
-		}
-	}
-
-	// TODO: Update child start/end
 
 	// Update row
 	db, err := mysql.Open()

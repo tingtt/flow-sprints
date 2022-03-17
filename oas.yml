@@ -122,50 +122,12 @@ components:
           type: string
         description:
           type: string
-        estimated_start_date:
-          type: string
-          format: date
-        estimated_end_date:
-          type: string
-          format: date
         start:
           type: string
           format: date
         end:
           type: string
           format: date
-        parent_id:
-          type: integer
-        sub_sprints:
-          type: array
-          items:
-          $ref: "#/components/schemas/SubSprint"
-        project_id:
-          type: integer
-
-    SubSprint:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        description:
-          type: string
-        estimated_start_date:
-          type: string
-          format: date
-        estimated_end_date:
-          type: string
-          format: date
-        start:
-          type: string
-          format: date
-        end:
-          type: string
-          format: date
-        parent_id:
-          type: integer
         project_id:
           type: integer
 
@@ -176,26 +138,18 @@ components:
           type: string
         description:
           type: string
-        estimated_start_date:
-          type: string
-          format: date
-        estimated_end_date:
-          type: string
-          format: date
         start:
           type: string
           format: date
         end:
           type: string
           format: date
-        parent_id:
-          type: integer
         project_id:
           type: integer
       required:
         - name
-        - estimated_start_date
-        - estimated_end_date
+        - start
+        - end
 
     UpdateSprintBody:
       type: object
@@ -204,20 +158,12 @@ components:
           type: string
         description:
           type: string
-        estimated_start_date:
-          type: string
-          format: date
-        estimated_end_date:
-          type: string
-          format: date
         start:
           type: string
           format: date
         end:
           type: string
           format: date
-        parent_id:
-          type: integer
         project_id:
           type: integer
 

@@ -6,6 +6,5 @@ type Sprint struct {
 	Description *string `json:"description,omitempty"`
 	Start       string  `json:"start"`
 	End         string  `json:"end"`
-	ParentId    *uint64 `json:"parent_id,omitempty"`
 	ProjectId   *uint64 `json:"project_id,omitempty"`
 }
