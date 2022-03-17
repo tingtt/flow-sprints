@@ -27,7 +27,7 @@ func post(c echo.Context) error {
 	}
 
 	// Bind request body
-	post := new(sprint.Post)
+	post := new(sprint.PostBody)
 	if err = c.Bind(post); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -45,7 +45,7 @@ func post(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, startAfterEnd, invalidParentId, invalidChildDate, err := sprint.Insert(userId, *post)
+	p, startAfterEnd, invalidParentId, invalidChildDate, err := sprint.Post(userId, *post)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)

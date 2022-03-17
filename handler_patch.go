@@ -38,7 +38,7 @@ func patch(c echo.Context) error {
 	}
 
 	// Bind request body
-	patch := new(sprint.Patch)
+	patch := new(sprint.PatchBody)
 	if err = c.Bind(patch); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -56,7 +56,7 @@ func patch(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, notFound, startAfterEnd, parentNotFound, loopParent, invalidChildDate, err := sprint.Update(userId, id, *patch)
+	p, notFound, startAfterEnd, parentNotFound, loopParent, invalidChildDate, err := sprint.Patch(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
