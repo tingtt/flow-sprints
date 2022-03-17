@@ -17,7 +17,7 @@ func delete(c echo.Context) error {
 	userId, err := jwt.CheckToken(*jwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
 	}
 
 	// id
