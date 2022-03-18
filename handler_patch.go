@@ -3,6 +3,7 @@ package main
 import (
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -50,7 +51,20 @@ func patch(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check project id
+	// Check project id
+	if patch.ProjectId != nil {
+		valid, err := checkProjectId(u.Raw, *patch.ProjectId)
+		if err != nil {
+			// 500: Internal server error
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		if !valid {
+			// 409: Conflit
+			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", *patch.ProjectId))
+			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *patch.ProjectId)}, "	")
+		}
+	}
 
 	p, notFound, startAfterEnd, err := sprint.Patch(userId, id, *patch)
 	if err != nil {

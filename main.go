@@ -34,16 +34,17 @@ func getEnv(key, fallback string) string {
 
 // Priority: command line params > env variables > default value
 var (
-	port        = flag.Int("port", getIntEnv("PORT", 1323), "Server port")
-	logLevel    = flag.Int("log-level", getIntEnv("LOG_LEVEL", 2), "Log level (1: 'DEBUG', 2: 'INFO', 3: 'WARN', 4: 'ERROR', 5: 'OFF', 6: 'PANIC', 7: 'FATAL'")
-	gzipLevel   = flag.Int("gzip-level", getIntEnv("GZIP_LEVEL", 6), "Gzip compression level")
-	mysqlHost   = flag.String("mysql-host", getEnv("MYSQL_HOST", "db"), "MySQL host")
-	mysqlPort   = flag.Int("mysql-port", getIntEnv("MYSQL_PORT", 3306), "MySQL port")
-	mysqlDB     = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-sprints"), "MySQL database")
-	mysqlUser   = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-sprints"), "MySQL user")
-	mysqlPasswd = flag.String("mysql-password", getEnv("MYSQL_PASSWORD", ""), "MySQL password")
-	jwtIssuer   = flag.String("jwt-issuer", getEnv("JWT_ISSUER", "flow-users"), "JWT issuer")
-	jwtSecret   = flag.String("jwt-secret", getEnv("JWT_SECRET", ""), "JWT secret")
+	port               = flag.Int("port", getIntEnv("PORT", 1323), "Server port")
+	logLevel           = flag.Int("log-level", getIntEnv("LOG_LEVEL", 2), "Log level (1: 'DEBUG', 2: 'INFO', 3: 'WARN', 4: 'ERROR', 5: 'OFF', 6: 'PANIC', 7: 'FATAL'")
+	gzipLevel          = flag.Int("gzip-level", getIntEnv("GZIP_LEVEL", 6), "Gzip compression level")
+	mysqlHost          = flag.String("mysql-host", getEnv("MYSQL_HOST", "db"), "MySQL host")
+	mysqlPort          = flag.Int("mysql-port", getIntEnv("MYSQL_PORT", 3306), "MySQL port")
+	mysqlDB            = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-sprints"), "MySQL database")
+	mysqlUser          = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-sprints"), "MySQL user")
+	mysqlPasswd        = flag.String("mysql-password", getEnv("MYSQL_PASSWORD", ""), "MySQL password")
+	jwtIssuer          = flag.String("jwt-issuer", getEnv("JWT_ISSUER", "flow-users"), "JWT issuer")
+	jwtSecret          = flag.String("jwt-secret", getEnv("JWT_SECRET", ""), "JWT secret")
+	serviceUrlProjects = flag.String("service-url-projects", getEnv("SERVICE_URL_PROJECTS", ""), "Service url: flow-projects")
 )
 
 type CustomValidator struct {
