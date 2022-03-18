@@ -42,7 +42,7 @@ func Post(userId uint64, post PostBody) (p Sprint, startAfterEnd bool, err error
 		return
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("INSERT INTO sprints (user_id, name, description, start, end, project_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+	stmtIns, err := db.Prepare("INSERT INTO sprints (user_id, name, description, start, end, project_id) VALUES (?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return
 	}
