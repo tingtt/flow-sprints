@@ -4,12 +4,19 @@ import (
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
 	"net/http"
+	"strconv"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
 func get(c echo.Context) error {
+	// Check `Content-Type`
+	if c.Request().Header.Get("Content-Type") != "application/json" {
+		// 415: Invalid `Content-Type`
+		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": "unsupported media type"}, "	")
+	}
+
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
 	userId, err := jwt.CheckToken(*jwtIssuer, u)
@@ -18,32 +25,28 @@ func get(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// Bind query
-	q := new(sprint.GetListQuery)
-	if err = c.Bind(q); err != nil {
-		// 400: Bad request
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+	// id
+	idStr := c.Param("id")
+
+	// string -> uint64
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		// 404: Not found
+		return echo.ErrNotFound
 	}
 
-	// Validate query
-	if err = c.Validate(q); err != nil {
-		// 400: Bad request
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
-	}
-
-	// Get sprints
-	sprints, err := sprint.GetList(userId, *q)
+	s, notFound, err := sprint.Get(userId, id)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
+	if notFound {
+		// 404: Not found
+		c.Logger().Debug("project not found")
+		return echo.ErrNotFound
+	}
 
 	// 200: Success
-	if sprints == nil {
-		return c.JSONPretty(http.StatusOK, []interface{}{}, "	")
-	}
-	return c.JSONPretty(http.StatusOK, sprints, "	")
+	return c.JSONPretty(http.StatusOK, s, "	")
 }

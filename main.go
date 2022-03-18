@@ -79,8 +79,9 @@ func main() {
 	e.Logger.Info(mysql.SetDSNTCP(*mysqlUser, *mysqlPasswd, *mysqlHost, *mysqlPort, *mysqlDB))
 
 	// Restricted routes
-	e.GET("/", get)
+	e.GET("/", getList)
 	e.POST("/", post)
+	e.GET(":id", get)
 	e.PATCH(":id", patch)
 	e.DELETE(":id", delete)
 
