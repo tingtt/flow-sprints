@@ -84,6 +84,7 @@ func main() {
 	e.GET(":id", get)
 	e.PATCH(":id", patch)
 	e.DELETE(":id", delete)
+	e.DELETE("/", deleteAll)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", *port)))
 }
