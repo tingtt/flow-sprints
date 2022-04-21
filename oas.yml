@@ -199,18 +199,6 @@ components:
       in: query
       schema:
         type: integer
-    date:
-      name: date
-      in: path
-      required: true
-      schema:
-        type: string
-        format: date
-    range:
-      name: range
-      in: query
-      schema:
-        type: integer
     start:
       name: start
       in: query
