@@ -11,12 +11,6 @@ import (
 )
 
 func get(c echo.Context) error {
-	// Check `Content-Type`
-	if c.Request().Header.Get("Content-Type") != "application/json" {
-		// 415: Invalid `Content-Type`
-		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": "unsupported media type"}, "	")
-	}
-
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
 	userId, err := jwt.CheckToken(*jwtIssuer, u)
