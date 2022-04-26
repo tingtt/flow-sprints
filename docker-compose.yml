@@ -9,13 +9,20 @@ services:
     volumes:
       - .:/go/src/app
     ports:
-      - $PORT:$PORT
-    env_file:
-      - .env
-      - mysql.env
-      - param.env
+      - ${PORT:-1323}:${PORT:-1323}
     environment:
-      TZ: UTC
+      TZ: ${TZ:-UTC}
+      PORT: ${PORT:-1323}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-sprints}
+      MYSQL_USER: ${MYSQL_USER:-flow-sprints}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      LOG_LEVEL: ${LOG_LEVEL:-2}
+      GZIP_LEVEL: ${GZIP_LEVEL:-6}
+      MYSQL_HOST: ${MYSQL_HOST:-db}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      JWT_ISSUER: ${JWT_ISSUER:-flow-sprints}
+      JWT_SECRET: ${JWT_SECRET}
+      SERVICE_URL_PROJECTS: ${SERVICE_URL_PROJECTS}
     depends_on:
       - db
     restart: unless-stopped
@@ -33,11 +40,12 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - 3306
-    env_file:
-      - mysql.env
     environment:
-      MYSQL_ROOT_PASSWORD: kJHkFK9m
-      TZ: UTC
+      TZ: ${TZ:-UTC}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-users}
+      MYSQL_USER: ${MYSQL_USER:-flow-users}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: unless-stopped
 
 volumes:
