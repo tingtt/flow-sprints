@@ -1,5 +1,6 @@
 stages:
   - delivery
+  - deploy
 
 push-github:
   stage: delivery
@@ -17,3 +18,17 @@ push-github:
     - git branch main || git checkout main
     - git pull origin main -r
     - git push github main -f --tags
+
+deploy-job:
+  stage: deploy
+  only:
+    - main
+    - tags
+  before_script:
+    - cat .env >> /dev/null && sudo docker-compose stop web || true
+    - echo -e "TZ=$TZ\nPORT=$PORT\nMYSQL_PASSWORD=$MYSQL_PASSWORD\nMYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD\nJWT_SECRET=$JWT_SECRET\nSERVICE_URL_PROJECTS=$SERVICE_URL_PROJECTS" > .env
+    - mkdir db/log -p
+    - chmod -R 777 db/log
+  script:
+    - sudo docker-compose build web
+    - sudo docker-compose up -d
