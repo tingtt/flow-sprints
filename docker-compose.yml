@@ -20,7 +20,7 @@ services:
       GZIP_LEVEL: ${GZIP_LEVEL:-6}
       MYSQL_HOST: ${MYSQL_HOST:-db}
       MYSQL_PORT: ${MYSQL_PORT:-3306}
-      JWT_ISSUER: ${JWT_ISSUER:-flow-sprints}
+      JWT_ISSUER: ${JWT_ISSUER:-flow-users}
       JWT_SECRET: ${JWT_SECRET}
       SERVICE_URL_PROJECTS: ${SERVICE_URL_PROJECTS}
     depends_on:
