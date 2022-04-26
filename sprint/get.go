@@ -21,6 +21,7 @@ func Get(userId uint64, id uint64) (s Sprint, notFound bool, err error) {
 	if err != nil {
 		return Sprint{}, false, err
 	}
+	defer rows.Close()
 
 	if !rows.Next() {
 		// Not found

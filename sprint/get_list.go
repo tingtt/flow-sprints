@@ -44,6 +44,7 @@ func GetList(userId uint64, q GetListQuery) (sprints []Sprint, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		s := Sprint{}
