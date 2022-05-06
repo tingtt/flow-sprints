@@ -5,6 +5,7 @@ import (
 	"flow-sprints/sprint"
 	"fmt"
 	"net/http"
+	"strings"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -12,7 +13,7 @@ import (
 
 func post(c echo.Context) error {
 	// Check `Content-Type`
-	if c.Request().Header.Get("Content-Type") != "application/json" {
+	if !strings.Contains(c.Request().Header.Get("Content-Type"), "application/json") {
 		// 415: Invalid `Content-Type`
 		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": "unsupported media type"}, "	")
 	}
