@@ -63,6 +63,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 }
 
 func main() {
+	flag.Parse()
 	e := echo.New()
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: *gzipLevel,
