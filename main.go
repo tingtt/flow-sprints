@@ -6,6 +6,7 @@ import (
 	"flow-sprints/mysql"
 	"flow-sprints/sprint"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -71,13 +72,29 @@ func main() {
 	e.Logger.SetLevel(log.Lvl(*logLevel))
 	e.Validator = &CustomValidator{validator: validator.New()}
 
+	// Setup db client instance
+	e.Logger.Info(mysql.SetDSNTCP(*mysqlUser, *mysqlPasswd, *mysqlHost, *mysqlPort, *mysqlDB))
+	// Check connection
+	d, err := mysql.Open()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	if err = d.Ping(); err != nil {
+		e.Logger.Fatal(err)
+	}
+
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.JwtCustumClaims{},
 		SigningKey: []byte(*jwtSecret),
+		Skipper: func(c echo.Context) bool {
+			return c.Path() == "/-/readiness"
+		},
 	}))
 
-	// Setup db client instance
-	e.Logger.Info(mysql.SetDSNTCP(*mysqlUser, *mysqlPasswd, *mysqlHost, *mysqlPort, *mysqlDB))
+	// Health check route
+	e.GET("/-/readiness", func(c echo.Context) error {
+		return c.String(http.StatusOK, "flow-sprints is Healthy.\n")
+	})
 
 	// Restricted routes
 	e.GET("/", getList)
