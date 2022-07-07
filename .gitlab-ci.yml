@@ -9,7 +9,6 @@ push-github:
     - main
     - tags
   before_script:
-    - sudo apt install -y openssh-client
     - eval "$(ssh-agent -s)"
     - echo "$GITHUB_SSH_SECRET" | tr -d '\r' | ssh-add -
     - git config --local user.name "$GITHUB_USER"
@@ -57,5 +56,4 @@ deploy-job:
     - mkdir db/log -p
     - chmod -R 777 db/log
   script:
-    - sudo docker-compose build web
-    - sudo docker-compose up -d
+    - docker-compose up -d --build --force-recreate
