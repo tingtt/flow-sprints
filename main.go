@@ -87,14 +87,13 @@ func main() {
 	if *serviceUrlProjects == "" {
 		e.Logger.Fatal("`--service-url-projects` option is required")
 	}
-	ok, err := checkHealth(*serviceUrlProjects + "/-/readiness")
-	if err != nil {
+	if ok, err := checkHealth(*serviceUrlProjects + "/-/readiness"); err != nil {
 		e.Logger.Fatalf("failed to check health of external service `flow-projects` %s", err)
-	}
-	if !ok {
+	} else if !ok {
 		e.Logger.Fatal("failed to check health of external service `flow-projects`")
 	}
 
+	// Setup JWT
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.JwtCustumClaims{},
 		SigningKey: []byte(*jwtSecret),
