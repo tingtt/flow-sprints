@@ -57,12 +57,12 @@ func patch(c echo.Context) error {
 		valid, err := checkProjectId(u.Raw, **patch.ProjectId.UInt64)
 		if err != nil {
 			// 500: Internal server error
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if !valid {
 			// 409: Conflit
-			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", **patch.ProjectId.UInt64))
+			c.Logger().Debugf("project id: %d does not exist", **patch.ProjectId.UInt64)
 			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", **patch.ProjectId.UInt64)}, "	")
 		}
 	}
@@ -70,7 +70,7 @@ func patch(c echo.Context) error {
 	p, notFound, startAfterEnd, err := sprint.Patch(userId, id, *patch)
 	if err != nil {
 		// 500: Internal server error
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {

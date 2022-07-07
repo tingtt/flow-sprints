@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
 	"net/http"
@@ -33,12 +32,12 @@ func delete(c echo.Context) error {
 	notFound, err := sprint.Delete(userId, id)
 	if err != nil {
 		// 500: Internal server error
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {
 		// 404: Not found
-		c.Logger().Debug(errors.New("sprint not found"))
+		c.Logger().Debug("sprint not found")
 		return echo.ErrNotFound
 	}
 
