@@ -23,6 +23,7 @@ services:
       JWT_ISSUER: ${JWT_ISSUER:-flow-users}
       JWT_SECRET: ${JWT_SECRET}
       SERVICE_URL_PROJECTS: ${SERVICE_URL_PROJECTS}
+    command: ${ARGS:-}
     depends_on:
       - db
     restart: unless-stopped

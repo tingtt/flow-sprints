@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 EXPOSE ${PORT}
 
-CMD ["go", "run", "."]
+ENTRYPOINT ["go", "run", "."]
 
 
 FROM golang:1.17-alpine as builder
@@ -32,4 +32,4 @@ WORKDIR ${ROOT}
 COPY --from=builder ${ROOT}/binary ${ROOT}
 
 EXPOSE ${PORT}
-CMD ["/go/src/app/binary"]
+ENTRYPOINT ["/go/src/app/binary"]

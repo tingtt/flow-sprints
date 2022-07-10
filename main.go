@@ -47,6 +47,14 @@ func main() {
 		Level: int(*f.GzipLevel),
 	}))
 
+	// CORS
+	if f.AllowOrigins != nil && len(f.AllowOrigins) != 0 {
+		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: f.AllowOrigins,
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		}))
+	}
+
 	// Log level
 	e.Logger.SetLevel(log.Lvl(*f.LogLevel))
 
