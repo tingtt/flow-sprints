@@ -1,6 +1,7 @@
-package main
+package handler
 
 import (
+	"flow-sprints/flags"
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
 	"net/http"
@@ -10,10 +11,10 @@ import (
 	"github.com/labstack/echo"
 )
 
-func delete(c echo.Context) error {
+func Get(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	userId, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
@@ -29,7 +30,7 @@ func delete(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 
-	notFound, err := sprint.Delete(userId, id)
+	s, notFound, err := sprint.Get(userId, id)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Error(err)
@@ -37,10 +38,10 @@ func delete(c echo.Context) error {
 	}
 	if notFound {
 		// 404: Not found
-		c.Logger().Debug("sprint not found")
+		c.Logger().Debug("project not found")
 		return echo.ErrNotFound
 	}
 
-	// 204: No content
-	return c.JSONPretty(http.StatusNoContent, map[string]string{"message": "Deleted"}, "	")
+	// 200: Success
+	return c.JSONPretty(http.StatusOK, s, "	")
 }

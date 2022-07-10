@@ -1,8 +1,10 @@
-package main
+package handler
 
 import (
+	"flow-sprints/flags"
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
+	"flow-sprints/utils"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -12,7 +14,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func patch(c echo.Context) error {
+func Patch(c echo.Context) error {
 	// Check `Content-Type`
 	if !strings.Contains(c.Request().Header.Get("Content-Type"), "application/json") {
 		// 415: Invalid `Content-Type`
@@ -21,7 +23,7 @@ func patch(c echo.Context) error {
 
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	userId, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
@@ -54,16 +56,16 @@ func patch(c echo.Context) error {
 
 	// Check project id
 	if patch.ProjectId.UInt64 != nil && *patch.ProjectId.UInt64 != nil {
-		valid, err := checkProjectId(u.Raw, **patch.ProjectId.UInt64)
+		status, err := utils.HttpGet(fmt.Sprintf("%s/%d", *flags.Get().ServiceUrlProjects, **patch.ProjectId.UInt64), &u.Raw)
 		if err != nil {
 			// 500: Internal server error
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		if !valid {
-			// 409: Conflit
+		if status != http.StatusOK {
+			// 400: Bad request
 			c.Logger().Debugf("project id: %d does not exist", **patch.ProjectId.UInt64)
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", **patch.ProjectId.UInt64)}, "	")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", **patch.ProjectId.UInt64)}, "	")
 		}
 	}
 
@@ -81,7 +83,7 @@ func patch(c echo.Context) error {
 	if startAfterEnd {
 		// 400: Bad request
 		c.Logger().Debug("`start` must before `end`")
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "`start` must before `end`"}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "`start` must before `end`"}, "	")
 	}
 
 	// 200: Success

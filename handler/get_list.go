@@ -1,6 +1,7 @@
-package main
+package handler
 
 import (
+	"flow-sprints/flags"
 	"flow-sprints/jwt"
 	"flow-sprints/sprint"
 	"net/http"
@@ -9,10 +10,10 @@ import (
 	"github.com/labstack/echo"
 )
 
-func getList(c echo.Context) error {
+func GetList(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	userId, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
