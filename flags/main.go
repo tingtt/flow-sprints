@@ -8,7 +8,15 @@ type AllowOrigins []string
 
 // Implements from flag.Value
 func (i *AllowOrigins) String() string {
-	return "my string representation"
+	str := "["
+	for idx, o := range *i {
+		str += o
+		if len(*i) != idx+1 {
+			str += ", "
+		}
+	}
+	str += "]"
+	return str
 }
 
 // Implements from flag.Value
