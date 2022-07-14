@@ -25,7 +25,7 @@ COPY . ${ROOT}
 RUN CGO_ENABLED=0 GOOS=linux go build -o $ROOT/binary
 
 
-FROM scratch as prod
+FROM alpine as prod
 
 ENV ROOT=/go/src/app
 WORKDIR ${ROOT}
