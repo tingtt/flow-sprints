@@ -32,12 +32,12 @@ services:
     image: mysql:8
     volumes:
       - type: bind
-        source: "./db/init.sql"
+        source: "./.db/init.sql"
         target: "/docker-entrypoint-initdb.d/init.sql"
       - type: bind
-        source: "./db/my.cnf"
+        source: "./.db/my.cnf"
         target: "/etc/mysql/conf.d/my.cnf"
-      - ./db/log:/var/log/mysql
+      - ./.db/log:/var/log/mysql
       - mysql_data:/var/lib/mysql
     ports:
       - 3306

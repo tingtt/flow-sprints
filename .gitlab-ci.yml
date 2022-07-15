@@ -62,7 +62,7 @@ deploy-job:
       JWT_SECRET=$JWT_SECRET
       SERVICE_URL_PROJECTS=$SERVICE_URL_PROJECTS
       ARGS=$ARGS" > .env
-    - mkdir db/log -p
-    - chmod -R 777 db/log
+    - mkdir .db/log -p
+    - chmod -R 777 .db/log
   script:
     - docker-compose up -d --build --force-recreate

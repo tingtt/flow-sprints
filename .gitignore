@@ -1,2 +1,2 @@
-db/log/*.log
+.db/log/*.log
 .env
