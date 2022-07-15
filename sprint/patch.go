@@ -74,7 +74,7 @@ func Patch(userId uint64, id uint64, new PatchBody) (s Sprint, notFound bool, st
 	}
 
 	// Generate query
-	queryStr := "UPDATE schemes SET"
+	queryStr := "UPDATE sprints SET"
 	var queryParams []interface{}
 	if new.Name != nil {
 		queryStr += " name = ?,"
