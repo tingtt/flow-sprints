@@ -23,6 +23,7 @@ build-main-job:
   stage: build
   only:
     - main
+    - tags
   script:
     - docker build . -t $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:latest
 
@@ -34,6 +35,25 @@ push-main-job:
     - build-main-job
   script:
     - docker push $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:latest
+
+push-main-commit-job:
+  stage: build
+  only:
+    - main
+  needs:
+    - push-main-job
+  script:
+    - docker tag $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_SHORT_SHA
+    - docker push $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_SHORT_SHA
+
+delete-old-main-job:
+  stage: build
+  only:
+    - main
+  needs:
+    - push-main-commit-job
+  script:
+    - docker rmi $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$(git rev-parse --short @~) || true
 
 push-tags-job:
   stage: build
