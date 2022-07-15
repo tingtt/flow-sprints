@@ -43,8 +43,8 @@ push-main-commit-job:
   needs:
     - push-main-job
   script:
-    - docker tag $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_TAG-$CI_PIPELINE_ID
-    - docker push $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_TAG-$CI_PIPELINE_ID
+    - docker tag $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$(git tag | grep v | tail -n1)-$CI_PIPELINE_ID
+    - docker push $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$(git tag | grep v | tail -n1)-$CI_PIPELINE_ID
 
 delete-old-main-job:
   stage: build
