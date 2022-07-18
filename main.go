@@ -131,12 +131,12 @@ func main() {
 	// Check health of external service
 	//
 	if *flags.Get().ServiceUrlProjects == "" {
-		e.Logger.Fatal("`--service-url-projects` option is required")
+		e.Logger.Warn("`--service-url-projects` option is required")
 	}
 	if status, err := utils.HttpGet(*flags.Get().ServiceUrlProjects+"/-/readiness", nil); err != nil {
-		e.Logger.Fatalf("failed to check health of external service `flow-projects` %s", err)
+		e.Logger.Warnf("failed to check health of external service `flow-projects` %s", err)
 	} else if status != http.StatusOK {
-		e.Logger.Fatal("failed to check health of external service `flow-projects`")
+		e.Logger.Warn("failed to check health of external service `flow-projects`")
 	}
 	e.Logger.Debug("Check health of external service `flow-projects` succeeded")
 
