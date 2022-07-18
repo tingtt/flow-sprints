@@ -1,6 +1,7 @@
 stages:
   - delivery
   - build
+  - gitops
   - deploy
 
 push-github:
@@ -64,6 +65,24 @@ push-tags-job:
   script:
     - docker tag $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_TAG
     - docker push $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_TAG
+
+update_manifest:
+  stage: gitops
+  only:
+    - tags
+  needs:
+    - push-tags-job
+  script:
+    - git remote add manifests https://flow-CI:$PRIVATE_TOKEN@gitlab.tingtt.jp/flow/flow-manifests.git || true
+    - git fetch manifests
+    - git checkout manifests/main
+    - git checkout -b $CI_PROJECT_NAME/$CI_COMMIT_TAG
+    - |
+      cat 22_sprints/deploy.yaml | \
+        sed "s/image: registry.tingtt.jp\/flow\/flow-users:v.*/image: registry.tingtt.jp\/flow\/flow-users:$CI_COMMIT_TAG/" | \
+        tee 22_sprints/deploy.yaml
+    - git commit -am "[update] $CI_PROJECT_NAME to $CI_COMMIT_TAG"
+    - git push manifests $CI_PROJECT_NAME/$CI_COMMIT_TAG
 
 deploy-job:
   stage: deploy
